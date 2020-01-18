@@ -40,17 +40,25 @@ def extract_data_elCorteIngles(key_word):
                         price = span.contents[0]
                         break
                 description = ""
-                descs = soup2.find("div", "description-container").findAll("p", "content")
-                for desc in descs:
-                    description = description + desc.contents[0]
-                references = soup2.find("div", "reference").findAll("span")
-                ean = ""
-                for ref in references:
-                    if "id" in ref.attrs:
-                        if ref["id"] == "ean-ref":
-                            ean = ref.contents[0]
-                            res.append({"ean": ean, "title": title, "description": description, "price": price, "link": link})
-                            break
+                try:
+                    descs = soup2.find("div", "description-container").findAll("p", "content")
+                    for desc in descs:
+                        description = description + desc.contents[0]
+                except:
+                    pass
+                try:
+                    references = soup2.find("div", "reference").findAll("span")
+                    ean = ""
+                    for ref in references:
+                        if "id" in ref.attrs:
+                            if ref["id"] == "ean-ref":
+                                ean = ref.contents[0]
+                                res.append(
+                                    {"ean": ean, "title": title, "description": description, "price": price,
+                                     "link": link})
+                                break
+                except:
+                    pass
         return res
 
 
