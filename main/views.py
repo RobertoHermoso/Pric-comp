@@ -33,7 +33,11 @@ def compare(request):
         if form.is_valid():
             key = form.cleaned_data['key_word']
             eci = extract_data_elCorteIngles(key)
+            mm = extract_data_mediaMarkt(key)
             for prod in eci:
                 Producto_ECI.objects.update_or_create(ean=prod["ean"], nombre=prod["title"], descripcion=prod["description"], link=prod["link"])
                 Historico_ECI.objects.create(fecha=datetime.datetime.now(), producto_id=prod["ean"], precio=prod["price"])
-            return render(request, 'compare_result.html', {"eci": eci})
+            for prodM in mm:
+                Producto_MM.objects.update_or_create(ean=prodM["ean"], nombre=prodM["title"], descripcion=prodM["description"], link=prodM["link"])
+                Historico_MM.objects.create(fecha=datetime.datetime.now(), producto_id=prodM["ean"], precio=prodM["price"])
+            return render(request, 'compare_result.html', {"eci": eci, "mm":mm})

@@ -55,7 +55,7 @@ def extract_data_elCorteIngles(key_word):
 
 
 def extract_data_mediaMarkt(key_word):
-    res = {}
+    res = []
     fichero = "mediaMarkt"
     ficheroElement = "mediaMarktElement"
     key_word = key_word.replace(" ", "+")
@@ -75,22 +75,27 @@ def extract_data_mediaMarkt(key_word):
                     f1 = open(ficheroElement, encoding='utf-8')
                     s1 = f1.read()
                     soup = BeautifulSoup(s1, "html.parser")
-                    res = extract_an_element_MM(res, soup)
+                    res = extract_an_element_MM(res, soup, link)
         #One element        
         else:
-            res = extract_an_element_MM(res, soup)
-        return res
+            res = extract_an_element_MM(res, soup, url)
+    return res
     
-def extract_an_element_MM(res, soup):
+def extract_an_element_MM(res, soup, link):
     scripts = soup.findAll("script")
     jsonProduct = json.loads(scripts[16].contents[0].split(';')[0].split("=")[1])
     if 'ean' in jsonProduct:
         ean = jsonProduct['ean']
         nombre = jsonProduct['name']
         price = jsonProduct ['price']
-        attributes = [nombre, price]
-        res[ean]= attributes
+        p =  soup.find("article", class_="description").findAll("p")
+        if(len(p)>1):
+            description = p[1].contents[0]
+        else:
+            divs = soup.find("article", class_="description").findAll('div')
+            description = divs[0].contents[0]
+        attributes = {'ean' : ean,'title':nombre, 'price':price, 'link': link, 'description':description}
+        res.append(attributes)
         
     return res
     
-print(extract_data_mediaMarkt("Persona 5"))
