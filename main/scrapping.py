@@ -37,20 +37,24 @@ def extract_data_mediaMarkt(key_word):
         s = f.read()
         soup = BeautifulSoup(s, "html.parser");
         
-        products = soup.find("ul", class_="products-list")
-        products = products.findAll('div', class_='product-wrapper');
-        for product in products:
-            name = product.find("h2").find("a").contents[0]
-            regex = re.compile(r'[\n\r\t]')
-            name = regex.sub("", name)
-            res.append(name)
 
+        products = soup.find("ul", class_="products-list")
+        if products is not None:
+            products = products.findAll('div', class_='product-wrapper');
+            for product in products:
+                name = product.find("h2").find("a").contents[0]
+                regex = re.compile(r'[\n\r\t]')
+                name = regex.sub("", name)
+                res.append(name)
+        else:
+            name = soup.find("h1", itemprop="name").contents[0]
+            res.append(name)
         return res
 
-key_word = "Persona"
+key_word = "Spiderman ps4"
 
-#print("EL CORTE INGLES")
-#print(extract_data_elCorteIngles(key_word))
+print("EL CORTE INGLES")
+print(extract_data_elCorteIngles(key_word))
 
 print("MEDIA MARKT")
 print(extract_data_mediaMarkt(key_word))
