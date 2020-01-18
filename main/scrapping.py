@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import urllib.request, re
 import re
 import json
+from .models import *
 
 
 def open_url(url, file):
@@ -12,6 +13,7 @@ def open_url(url, file):
 def extract_data_elCorteIngles(key_word):
     res = []
     fichero = "elCorteIngles"
+    fichero2 = "elCorteIngles2"
     key_word = key_word.replace(" ", "+")
     url = "https://www.elcorteingles.es/search?s=" + key_word
     if open_url(url, fichero):
@@ -21,11 +23,34 @@ def extract_data_elCorteIngles(key_word):
         products = soup.findAll("div", "product-preview")
         for product in products:
             aLabels = product.findAll("a", "event")
-            url = ""
+            link = "https://www.elcorteingles.es"
             for a in aLabels:
-                if a['href']:
-                    i = 0
-
+                if a["data-event"] == "product_click":
+                    link = link + a["href"]
+                    break
+            if open_url(link, fichero2):
+                fp = open(fichero2, encoding="utf-8")
+                sp = fp.read()
+                soup2 = BeautifulSoup(sp, "html.parser")
+                title = soup2.find("h2", "title").contents[0]
+                spanLabels = soup2.find("div", "product-price").findAll("span", "hidden")
+                price = ""
+                for span in spanLabels:
+                    if span["itemprop"] == "price":
+                        price = span.contents[0]
+                        break
+                description = ""
+                descs = soup2.find("div", "description-container").findAll("p", "content")
+                for desc in descs:
+                    description = description + desc.contents[0]
+                references = soup2.find("div", "reference").findAll("span")
+                ean = ""
+                for ref in references:
+                    if "id" in ref.attrs:
+                        if ref["id"] == "ean-ref":
+                            ean = ref.contents[0]
+                            res.append({"ean": ean, "title": title, "description": description, "price": price, "link": link})
+                            break
         return res
 
 

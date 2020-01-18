@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from .forms import *
 from .scrapping import *
+from .models import *
+import datetime
 
 # Create your views here.
 
@@ -30,4 +32,8 @@ def compare(request):
         form = Search_Form(request.POST)
         if form.is_valid():
             key = form.cleaned_data['key_word']
-            extract_data_elCorteIngles(key)
+            eci = extract_data_elCorteIngles(key)
+            for prod in eci:
+                Producto_ECI.objects.update_or_create(ean=prod["ean"], nombre=prod["title"], descripcion=prod["description"], link=prod["link"])
+                Historico_ECI.objects.create(fecha=datetime.datetime.now(), producto_id=prod["ean"], precio=prod["price"])
+            return render(request, 'compare_result.html', {"eci": eci})

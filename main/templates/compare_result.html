@@ -4,6 +4,13 @@
 <div class="jumbotron">
    <h1> Resultados para: {{ productName }} </h1>
 </div>
+<div>
+    <ul>
+    {% for item in eci %}
+        <li>Nombre: {{item.title}} </li>
+    {% endfor %}
+    </ul>
+</div>
 </body>
 {% endblock %}
 {% include 'footer.html' %}
