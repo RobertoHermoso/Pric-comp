@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import urllib.request, re
 import re
+from .models import *
 
 
 def open_url(url, file):
@@ -32,6 +33,7 @@ def extract_data_elCorteIngles(key_word):
                 soup2 = BeautifulSoup(sp, "html.parser")
                 title = soup2.find("h2", "title").contents[0]
                 spanLabels = soup2.find("div", "product-price").findAll("span", "hidden")
+                price = ""
                 for span in spanLabels:
                     if span["itemprop"] == "price":
                         price = span.contents[0]
@@ -41,6 +43,7 @@ def extract_data_elCorteIngles(key_word):
                 for desc in descs:
                     description = description + desc.contents[0]
                 references = soup2.find("div", "reference").findAll("span")
+                ean = ""
                 for ref in references:
                     if "id" in ref.attrs:
                         if ref["id"] == "ean-ref":

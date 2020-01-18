@@ -1,32 +1,41 @@
 from django.db import models
 
+
 # Create your models here.
 
-class Producto(models.Model):
+class Producto_ECI(models.Model):
     ean = models.TextField(primary_key=True)
-
-    #Media Markt
-    nombre_MM = models.TextField()
-    descripcion_MM = models.TextField()
-    link_MM = models.TextField()
-
-    #El Corte Ingles
-    nombre_ECI = models.TextField()
-    descripcion_ECI = models.TextField()
-    link_ECI = models.TextField()
+    nombre = models.TextField()
+    descripcion = models.TextField()
+    link = models.TextField()
 
     def __str__(self):
-        return self.nombre_MM + " / " + self.nombre_ECI + ", EAN = " + self.ean
+        return self.nombre + ", EAN = " + self.ean
 
-class Historico(models.Model):
+
+class Historico_ECI(models.Model):
     fecha = models.DateTimeField()
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
-
-    #Media Markt
-    precio_MM = models.TextField()
-
-    #El Corte Ingles
-    precio_ECI = models.TextField()
+    producto = models.ForeignKey(Producto_ECI, on_delete=models.CASCADE)
+    precio = models.TextField()
 
     def __str__(self):
-        return str(self.fecha) + " - Precio MM: " + self.precio_MM + " / Precio ECI: " + self.precio_ECI
+        return str(self.fecha) + " - Precio: " + self.precio
+
+
+class Producto_MM(models.Model):
+    ean = models.TextField(primary_key=True)
+    nombre = models.TextField()
+    descripcion = models.TextField()
+    link = models.TextField()
+
+    def __str__(self):
+        return self.nombre + ", EAN = " + self.ean
+
+
+class Historico_MM(models.Model):
+    fecha = models.DateTimeField()
+    producto = models.ForeignKey(Producto_MM, on_delete=models.CASCADE)
+    precio = models.TextField()
+
+    def __str__(self):
+        return str(self.fecha) + " - Precio: " + self.precio
