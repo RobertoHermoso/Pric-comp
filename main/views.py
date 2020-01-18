@@ -30,4 +30,4 @@ def compare(request):
         form = Search_Form(request.POST)
         if form.is_valid():
             key = form.cleaned_data['key_word']
-            extract_data_elCorteIngles(key)
+            eci = extract_data_elCorteIngles(key)
