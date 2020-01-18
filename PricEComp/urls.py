@@ -20,5 +20,6 @@ from main import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", views.index),
-    path("search/", views.search)
+    path("search/", views.search),
+    path("compare/", views.compare)
 ]
