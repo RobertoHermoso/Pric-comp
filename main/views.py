@@ -38,6 +38,22 @@ def compare(request):
                 Producto_ECI.objects.update_or_create(ean=prod["ean"], nombre=prod["title"], descripcion=prod["description"], link=prod["link"])
                 Historico_ECI.objects.create(fecha=datetime.datetime.now(), producto_id=prod["ean"], precio=prod["price"])
             for prodM in mm:
+<<<<<<< Updated upstream
                 Producto_MM.objects.update_or_create(ean=prodM["ean"], nombre=prodM["title"], descripcion=prodM["description"], link=prodM["link"])
                 Historico_MM.objects.create(fecha=datetime.datetime.now(), producto_id=prodM["ean"], precio=prodM["price"])
             return render(request, 'compare_result.html', {"eci": eci, "mm":mm})
+=======
+                print(prodM)
+                Producto_MM.objects.update_or_create(ean=str(prodM["ean"]), nombre=str(prodM["title"]),
+                                                     descripcion=str(prodM["description"]), link=str(prodM['link']))
+                Historico_MM.objects.create(fecha=datetime.datetime.now(), producto_id=str(prodM["ean"]),
+                                            precio=prodM["price"])
+                mm_ean.add(prodM["ean"])
+            res = list(eci_ean & mm_ean)[0]
+            mostrar = False
+            if res is not None:
+                mostrar = True
+            return render(request, 'compare_result.html', {"eci": Historico_ECI.objects.filter(producto_id=res).order_by("-fecha")[0],
+                                                           "mm": Historico_MM.objects.filter(producto_id=res).order_by("-fecha")[0],
+                                                           "productName": key, "mostrar": mostrar})
+>>>>>>> Stashed changes

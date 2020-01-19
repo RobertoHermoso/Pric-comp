@@ -4,6 +4,7 @@ import re
 import json
 from .models import *
 
+ProductMM = set()
 
 def open_url(url, file):
     urllib.request.urlretrieve(url, file)
@@ -91,11 +92,29 @@ def extract_data_mediaMarkt(key_word):
     
 def extract_an_element_MM(res, soup, link):
     scripts = soup.findAll("script")
+<<<<<<< Updated upstream
     jsonProduct = json.loads(scripts[16].contents[0].split(';')[0].split("=")[1])
+=======
+    jsonProduct = {}
+    description = ''
+    for script in scripts:
+        if len(script.contents)>0:
+            vars = script.contents[0].split(';')
+            for var in vars:
+                if len(var.split("="))==2:
+                    try:
+                        jsonVar = jsonConverter.loads(var.split("=")[1].strip())
+                        if 'ean' in jsonVar:
+                            jsonProduct = jsonVar
+                            break
+                    except:
+                        continue
+>>>>>>> Stashed changes
     if 'ean' in jsonProduct:
         ean = jsonProduct['ean']
         nombre = jsonProduct['name']
         price = jsonProduct ['price']
+<<<<<<< Updated upstream
         p =  soup.find("article", class_="description").findAll("p")
         if(len(p)>1):
             description = p[1].contents[0]
@@ -105,5 +124,31 @@ def extract_an_element_MM(res, soup, link):
         attributes = {'ean' : ean,'title':nombre, 'price':price, 'link': link, 'description':description}
         res.append(attributes)
         
+=======
+        ps =  soup.find("article", class_="description").findAll("p")
+        divs = soup.find("article", class_="description").findAll('div')
+        description = '' 
+        if len(ps)>1:
+            for p in ps:
+                strongs = p.find('strong')
+                h3 = p.find('h3')
+                if strongs is not None:
+                    description+=strongs.contents[0]
+                elif h3 is not None:
+                    description+=h3.contents[0] 
+                else:
+                    try:
+                        description+=str(p.contents[0])
+                    except:
+                        continue
+        elif len(divs)>1:
+            description = divs[0].contents[0]
+
+        attributes = {'ean' : ean,'title':nombre, 'price':price, 'link': link, 'description':description}
+        if ean not in ProductMM:
+            ProductMM.add(ean)
+            res.append(attributes)
+            
+>>>>>>> Stashed changes
     return res
     
