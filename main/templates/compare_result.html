@@ -1,26 +1,33 @@
 {% include 'header.html' %}
 {% block content %}
 <body>
-<div class="jumbotron">
-   <h1> Resultados para: {{ productName }} </h1>
-</div>
-<div>
-    El Corte Ingles
-    <ul>
-    {% for item in eci %}
-        <li>Nombre: {{item.title}} , {{item.price}}</li>
-    {% endfor %}
-    </ul>
-</div>
-
-<div>
-    Media Markt
-    <ul>
-    {% for item in mm %}
-        <li>Nombre: {{item.title}},  {{item.price}} </li>
-    {% endfor %}
-    </ul>
-</div>
+{% if mostrar %}
+    <div class="jumbotron">
+        <h1> Resultados para: {{ productName }} </h1>
+    </div>
+    <div>
+        El Corte Ingles
+        <ul>
+            <li>Nombre: <a href="{{eci.producto.link}}">{{eci.producto.nombre}}</a></li>
+            <li>Descripción: {{eci.producto.descripcion}} </li>
+            <li>Precio: {{eci.precio}}€ </li>
+            <li>EAN: {{eci.producto.ean}} </li>
+        </ul>
+    </div>
+    <div>
+        Media Markt
+        <ul>
+            <li>Nombre: <a href="{{mm.producto.link}}">{{mm.producto.nombre}}</a></li>
+            <li>Descripción: {{mm.producto.descripcion}} </li>
+            <li>Precio: {{mm.precio}}€ </li>
+            <li>EAN: {{mm.producto.ean}} </li>
+        </ul>
+    </div>
+{% else %}
+    <div class="jumbotron">
+        <h1> No existen resultados comunes para: {{ productName }} </h1>
+    </div>
+{% endif %}
 </body>
 {% endblock %}
 {% include 'footer.html' %}

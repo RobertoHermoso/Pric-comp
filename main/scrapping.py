@@ -106,4 +106,3 @@ def extract_an_element_MM(res, soup, link):
         res.append(attributes)
         
     return res
-    
