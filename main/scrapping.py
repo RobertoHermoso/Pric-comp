@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import urllib.request, re
 import re
-import json
+import json as jsonConverter
 from .models import *
 
 
@@ -91,18 +91,37 @@ def extract_data_mediaMarkt(key_word):
     
 def extract_an_element_MM(res, soup, link):
     scripts = soup.findAll("script")
-    jsonProduct = json.loads(scripts[16].contents[0].split(';')[0].split("=")[1])
-    if 'ean' in jsonProduct:
-        ean = jsonProduct['ean']
-        nombre = jsonProduct['name']
-        price = jsonProduct ['price']
-        p =  soup.find("article", class_="description").findAll("p")
-        if(len(p)>1):
-            description = p[1].contents[0]
-        else:
-            divs = soup.find("article", class_="description").findAll('div')
-            description = divs[0].contents[0]
-        attributes = {'ean' : ean,'title':nombre, 'price':price, 'link': link, 'description':description}
-        res.append(attributes)
-        
+    jsonProduct = {}
+    for script in scripts:
+        if len(script.contents)>0:
+            vars = script.contents[0].split(';')
+            for var in vars:
+                if len(var.split("="))==2:
+                    try:
+                        jsonVar = jsonConverter.loads(var.split("=")[1].strip())
+                        print(jsonVar)
+                        if 'ean' in jsonVar:
+                            jsonProduct = jsonVar
+                            break
+                    except:
+                        continue
+            if 'ean' in jsonProduct:
+                ean = jsonProduct['ean']
+                nombre = jsonProduct['name']
+                price = jsonProduct ['price']
+                p =  soup.find("article", class_="description").findAll("p")
+                if(len(p)>1):
+                    description = p[1].contents[0]
+                else:
+                    divs = soup.find("article", class_="description").findAll('div')
+                    if len(divs)>1:   
+                        description = divs[0].contents[0]
+                    else:
+                        ps = soup.find("article", class_="description").findAll('p')
+                        description = '' 
+                        for p in ps:
+                            description+=p.contents[0]
+                attributes = {'ean' : ean,'title':nombre, 'price':price, 'link': link, 'description':description}
+                res.append(attributes)
+            
     return res
