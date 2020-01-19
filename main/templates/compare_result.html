@@ -7,21 +7,30 @@
     </div>
     <div>
         El Corte Ingles
+        <br>
+        {% for e in eci %}
         <ul>
-            <li>Nombre: <a href="{{eci.producto.link}}">{{eci.producto.nombre}}</a></li>
-            <li>Descripción: {{eci.producto.descripcion}} </li>
-            <li>Precio: {{eci.precio}}€ </li>
-            <li>EAN: {{eci.producto.ean}} </li>
+            <li>Nombre: <a href="{{e.producto.link}}">{{e.producto.nombre}}</a></li>
+            <li>Descripción: {{e.producto.descripcion}} </li>
+            <li>Precio: {{e.precio}}€ </li>
+            <li>EAN: {{e.producto.ean}} </li>
         </ul>
+        <br>
+        {% endfor %}
     </div>
+    <hr>
     <div>
         Media Markt
+        <br>
+        {% for m in mm %}
         <ul>
-            <li>Nombre: <a href="{{mm.producto.link}}">{{mm.producto.nombre}}</a></li>
-            <li>Descripción: {{mm.producto.descripcion}} </li>
-            <li>Precio: {{mm.precio}}€ </li>
-            <li>EAN: {{mm.producto.ean}} </li>
+            <li>Nombre: <a href="{{m.producto.link}}">{{m.producto.nombre}}</a></li>
+            <li>Descripción: {{m.producto.descripcion}} </li>
+            <li>Precio: {{m.precio}}€ </li>
+            <li>EAN: {{m.producto.ean}} </li>
         </ul>
+        <br>
+        {% endfor %}
     </div>
 {% else %}
     <div class="jumbotron">

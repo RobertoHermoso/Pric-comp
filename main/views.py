@@ -48,14 +48,12 @@ def compare(request):
                 Historico_MM.objects.create(fecha=datetime.datetime.now(), producto_id=str(prodM["ean"]), precio=str(prodM["price"]))
                 mm_ean.add(str(prodM["ean"]))
             l = list(eci_ean & mm_ean)
-            res = ""
             mostrar = False
-            prod_eci = None
-            prod_mm = None
+            prod_eci = []
+            prod_mm = []
             if len(l) > 0:
-                res = l[0]
-            if len(res) > 0:
                 mostrar = True
-                prod_eci = Historico_ECI.objects.filter(producto_id=res).order_by("-fecha")[0]
-                prod_mm = Historico_MM.objects.filter(producto_id=res).order_by("-fecha")[0]
+                for e in l:
+                    prod_eci.append(Historico_ECI.objects.filter(producto_id=e).order_by("-fecha")[0])
+                    prod_mm.append(Historico_MM.objects.filter(producto_id=e).order_by("-fecha")[0])
             return render(request, 'compare_result.html', {"eci": prod_eci, "mm": prod_mm, "productName": key, "mostrar": mostrar})
