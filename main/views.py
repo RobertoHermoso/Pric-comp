@@ -40,21 +40,22 @@ def compare(request):
             eci_ean = set()
             mm_ean = set()
             for prod in eci:
-                Producto_ECI.objects.update_or_create(ean=prod["ean"], nombre=prod["title"],
-                                                      descripcion=prod["description"], link=prod["link"])
-                Historico_ECI.objects.create(fecha=datetime.datetime.now(), producto_id=prod["ean"],
-                                             precio=prod["price"])
-                eci_ean.add(prod["ean"])
+                Producto_ECI.objects.update_or_create(ean=str(prod["ean"]), nombre=str(prod["title"]), descripcion=str(prod["description"]), link=str(prod["link"]))
+                Historico_ECI.objects.create(fecha=datetime.datetime.now(), producto_id=str(prod["ean"]), precio=str(prod["price"]))
+                eci_ean.add(str(prod["ean"]))
             for prodM in mm:
-                Producto_MM.objects.update_or_create(ean=prodM["ean"], nombre=prodM["title"],
-                                                     descripcion=prodM["description"], link=prodM["link"])
-                Historico_MM.objects.create(fecha=datetime.datetime.now(), producto_id=prodM["ean"],
-                                            precio=prodM["price"])
-                mm_ean.add(prodM["ean"])
-            res = list(eci_ean & mm_ean)[0]
+                Producto_MM.objects.update_or_create(ean=str(prodM["ean"]), nombre=str(prodM["title"]), descripcion=str(prodM["description"]), link=str(prodM["link"]))
+                Historico_MM.objects.create(fecha=datetime.datetime.now(), producto_id=str(prodM["ean"]), precio=str(prodM["price"]))
+                mm_ean.add(str(prodM["ean"]))
+            l = list(eci_ean & mm_ean)
+            res = ""
             mostrar = False
-            if res is not None:
+            prod_eci = None
+            prod_mm = None
+            if len(l) > 0:
+                res = l[0]
+            if len(res) > 0:
                 mostrar = True
-            return render(request, 'compare_result.html', {"eci": Historico_ECI.objects.filter(producto_id=res).order_by("-fecha")[0],
-                                                           "mm": Historico_MM.objects.filter(producto_id=res).order_by("-fecha")[0],
-                                                           "productName": key, "mostrar": mostrar})
+                prod_eci = Historico_ECI.objects.filter(producto_id=res).order_by("-fecha")[0]
+                prod_mm = Historico_MM.objects.filter(producto_id=res).order_by("-fecha")[0]
+            return render(request, 'compare_result.html', {"eci": prod_eci, "mm": prod_mm, "productName": key, "mostrar": mostrar})

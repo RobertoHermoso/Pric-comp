@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-import urllib.request, re
+import urllib.request, urllib.parse
 import re
 import json as jsonConverter
 from .models import *
@@ -14,7 +14,7 @@ def extract_data_elCorteIngles(key_word):
     res = []
     fichero = "elCorteIngles"
     fichero2 = "elCorteIngles2"
-    key_word = key_word.replace(" ", "+")
+    key_word = urllib.parse.quote(key_word)
     url = "https://www.elcorteingles.es/search?s=" + key_word
     if open_url(url, fichero):
         f = open(fichero, encoding="utf-8")
