@@ -17,10 +17,8 @@ def search(request):
     if request.method == 'POST':
         form = Search_Form(request.POST)
         if form.is_valid():
-            print("Valor:")
             productName = form.cleaned_data['key_word']
-            print(productName)
-            return render(request, 'search_result.html', {'productName': productName})
+            return compare(request)
     else:
         form = Search_Form()
 
