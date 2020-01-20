@@ -6,7 +6,7 @@ import datetime
 import os
 from whoosh.index import create_in, open_dir
 from whoosh.fields import Schema, TEXT, KEYWORD, DATETIME, NUMERIC
-from whoosh.qparser import QueryParser, MultifieldParser
+from whoosh.qparser import QueryParser, MultifieldParser, OrGroup, AndGroup
 
 dirindex = "main/index"
 
@@ -20,11 +20,17 @@ def search(request):
     if request.method == 'POST':
         form = Search_Form(request.POST)
         if form.is_valid():
-            return compare(request)
+            if not aux_check_index():
+                aux_reset_all()
+            key = form.cleaned_data['key_word']
+            ix = open_dir(dirindex)
+            with ix.searcher() as searcher:
+                query = MultifieldParser(['descripcionECI', 'descripcionMM'], ix.schema).parse(key)
+                results = searcher.search(query)
     else:
         form = Search_Form()
 
-    return render(request, 'index.html', {'form': form})
+    return render(request, 'search.html', {'form': form})
 
 
 def compare(request):
@@ -78,18 +84,20 @@ def compare(request):
             prod_eci = []
             prod_mm = []
             if len(l) > 0:
+                ix = open_dir(dirindex)
+                writer = ix.writer()
                 mostrar = True
                 for e in l:
                     eci = Historico_ECI.objects.filter(producto_id=e).order_by("-fecha")[0]
                     mm = Historico_MM.objects.filter(producto_id=e).order_by("-fecha")[0]
-                    add_doc(e, mm.producto.descripcion, eci.producto.descripcion)
+                    add_doc(writer, e, mm.producto.descripcion, eci.producto.descripcion)
                     prod_eci.append(eci)
                     prod_mm.append(mm)
+                writer.commit()
             return render(request, 'compare_result.html', {"eci": prod_eci, "mm": prod_mm, "productName": key, "mostrar": mostrar})
 
 
 def historial_price(request):
-    product_id= "0711719941705"
     form = Historical_Form(request.GET)
     key = form['ean'].value()
     name = form['name'].value()
@@ -139,7 +147,5 @@ def aux_check_index():
     return check
 
 
-def add_doc(ean, descripcionMM, descripcionECI):
-    ix = open_dir(dirindex)
-    writer = ix.writer()
+def add_doc(writer, ean, descripcionMM, descripcionECI):
     writer.add_document(ean=ean, descripcionMM=descripcionMM, descripcionECI=descripcionECI)
