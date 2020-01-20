@@ -110,15 +110,18 @@ def extract_an_element_MM(res, soup, link):
                 ean = jsonProduct['ean']
                 nombre = jsonProduct['name']
                 price = jsonProduct ['price']
-                description = '' 
                 p =  soup.find("article", class_="description").findAll("p")
-                for p in ps:
-                    description+=p.contents[0]
+                if(len(p)>1):
+                    description = p[1].contents[0]
                 else:
                     divs = soup.find("article", class_="description").findAll('div')
                     if len(divs)>1:   
                         description = divs[0].contents[0]
-            
+                    else:
+                        ps = soup.find("article", class_="description").findAll('p')
+                        description = '' 
+                        for p in ps:
+                            description+=p.contents[0]
     print(ean)
     print(product_set)
     print(ean not in product_set)
