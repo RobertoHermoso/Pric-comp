@@ -22,4 +22,6 @@ urlpatterns = [
     path("", views.index),
     path("search/", views.search),
     path("historical/", views.historial_price)
+    path("compare/", views.compare),
+    path("reset_all/", views.reset_all)
 ]
