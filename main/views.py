@@ -3,7 +3,12 @@ from .forms import *
 from .scrapping import *
 from .models import *
 import datetime
+import os
+from whoosh.index import create_in, open_dir
+from whoosh.fields import Schema, TEXT, KEYWORD, DATETIME, NUMERIC
+from whoosh.qparser import QueryParser, MultifieldParser
 
+dirindex = "main/index"
 
 # Index
 def index(request):
@@ -29,6 +34,8 @@ def compare(request):
     else:
         form = Search_Form(request.POST)
         if form.is_valid():
+            if not aux_check_index():
+                aux_reset_all()
             key = form.cleaned_data['key_word']
             eci = extract_data_elCorteIngles(key)
             mm = extract_data_mediaMarkt(key)
@@ -37,11 +44,11 @@ def compare(request):
             for prod in eci:
                 Producto_ECI.objects.update_or_create(ean=str(prod["ean"]), nombre=str(prod["title"]), descripcion=str(prod["description"]), link=str(prod["link"]))
                 historico = Historico_ECI.objects.filter(producto_id=prod["ean"]).order_by("-fecha")
-                
+
                 #We check if is not void
                 if len(historico)>0:
                     #We check if the price changed
-                    if historico[0].precio!= prod["price"]:         
+                    if historico[0].precio!= prod["price"]:
                         Historico_ECI.objects.create(fecha=datetime.datetime.now(), producto_id=str(prod["ean"]), precio=str(prod["price"]))
                 else:
                     Historico_ECI.objects.create(fecha=datetime.datetime.now(), producto_id=str(prod["ean"]), precio=str(prod["price"]))
@@ -49,11 +56,11 @@ def compare(request):
             for prodM in mm:
                 Producto_MM.objects.update_or_create(ean=str(prodM["ean"]), nombre=str(prodM["title"]), descripcion=str(prodM["description"]), link=str(prodM["link"]))
                 historico = Historico_MM.objects.filter(producto_id=prod["ean"]).order_by("-fecha")
-                
+
                 #We check if is not void
                 if len(historico)>0:
                     #We check if the price changed
-                    if historico[0].precio!= prod["price"]:         
+                    if historico[0].precio!= prod["price"]:
                         Historico_MM.objects.create(fecha=datetime.datetime.now(), producto_id=str(prodM["ean"]), precio=str(prodM["price"]))
                 else:
                     Historico_MM.objects.create(fecha=datetime.datetime.now(), producto_id=str(prodM["ean"]), precio=str(prodM["price"]))
@@ -65,8 +72,11 @@ def compare(request):
             if len(l) > 0:
                 mostrar = True
                 for e in l:
-                    prod_eci.append(Historico_ECI.objects.filter(producto_id=e).order_by("-fecha")[0])
-                    prod_mm.append(Historico_MM.objects.filter(producto_id=e).order_by("-fecha")[0])
+                    eci = Historico_ECI.objects.filter(producto_id=e).order_by("-fecha")[0]
+                    mm = Historico_MM.objects.filter(producto_id=e).order_by("-fecha")[0]
+                    add_doc(e, mm.producto.descripcion, eci.producto.descripcion)
+                    prod_eci.append(eci)
+                    prod_mm.append(mm)
             return render(request, 'compare_result.html', {"eci": prod_eci, "mm": prod_mm, "productName": key, "mostrar": mostrar})
 
 
@@ -85,3 +95,43 @@ def historial_price(request):
         shop = "Media Markt"
         color = "red"
     return render(request, 'historial_price.html', {"res": res,"name": name, 'shop':shop, 'color':color})
+
+def reset_all(request):
+    aux_reset_all()
+    return render(request, "index.html")
+
+
+# Métodos auxiliares
+
+def aux_reset_all():
+    aux_reset_bd()
+    aux_reset_index()
+
+def aux_reset_index():
+    if not os.path.exists(dirindex):
+        os.mkdir(dirindex)
+    ix = create_in(dirindex, schema=Schema(ean=NUMERIC(int, 64, stored=True), descripcionMM=TEXT(stored=True), descripcionECI=TEXT(stored=True)))
+    writer = ix.writer()
+    writer.commit()
+
+
+def aux_reset_bd():
+    Producto_ECI.objects.all().delete()
+    Producto_MM.objects.all().delete()
+    Historico_ECI.objects.all().delete()
+    Historico_MM.objects.all().delete()
+
+
+def aux_check_index():
+    check = True
+    if not os.path.exists(dirindex):
+        os.mkdir(dirindex)
+    if len(os.listdir(dirindex)) == 0:
+        check = False
+    return check
+
+
+def add_doc(ean, descripcionMM, descripcionECI):
+    ix = open_dir(dirindex)
+    writer = ix.writer()
+    writer.add_document(ean=ean, descripcionMM=descripcionMM, descripcionECI=descripcionECI)
