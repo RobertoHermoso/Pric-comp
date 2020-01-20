@@ -55,12 +55,12 @@ def compare(request):
                 eci_ean.add(str(prod["ean"]))
             for prodM in mm:
                 Producto_MM.objects.update_or_create(ean=str(prodM["ean"]), nombre=str(prodM["title"]), descripcion=str(prodM["description"]), link=str(prodM["link"]))
-                historico = Historico_MM.objects.filter(producto_id=prod["ean"]).order_by("-fecha")
+                historico = Historico_MM.objects.filter(producto_id=prodM["ean"]).order_by("-fecha")
 
                 #We check if is not void
                 if len(historico)>0:
                     #We check if the price changed
-                    if historico[0].precio!= prod["price"]:
+                    if historico[0].precio!= prodM["price"]:
                         Historico_MM.objects.create(fecha=datetime.datetime.now(), producto_id=str(prodM["ean"]), precio=str(prodM["price"]))
                 else:
                     Historico_MM.objects.create(fecha=datetime.datetime.now(), producto_id=str(prodM["ean"]), precio=str(prodM["price"]))

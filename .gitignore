@@ -1,2 +1,13 @@
 
 .vscode/
+main/index/
+main/__pycache__/
+PricEComp/__pycache__/
+main/migrations/
+
+elCorteIngles
+elCorteIngles2
+db.sqlite3
+
+mediaMarktElement
+mediaMarkt
