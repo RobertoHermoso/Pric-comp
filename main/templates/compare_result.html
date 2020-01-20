@@ -1,5 +1,7 @@
 {% include 'header.html' %}
 {% block content %}
+{% load fontawesome %}
+{% fontawesome_stylesheet %}
 <body>
 {% if mostrar %}
     <div class="jumbotron">
@@ -11,6 +13,13 @@
         <div class="card-body">
             {% for m in mm %}
             <h4 class="card-title"> <a href="{{m.producto.link}}">{{m.producto.nombre}}</a></h4>
+            <form action="/historical/" method="get">
+                <input id="web" name="web" type="hidden" value="mm">
+                <input id="name" name="name" type="hidden" value="{{m.producto.nombre}}">
+                <input id="ean" name="ean" type="hidden" value={{m.producto.ean}}>
+            <h5 class="card-title"><button  class="btn btn-secondary"> 
+                {% fontawesome_icon 'table' color='red' %} Historial de precio </button></h5>
+            </form>
             <p class="card-text"><h6>Descripción:</h6> {{m.producto.descripcion}}</p>
             <p class="card-text"><h6>Precio:</h6> <div  style="font-size:20px"> {{m.precio}}€ </div></p>
             {% endfor %}
@@ -21,6 +30,13 @@
         <div class="card-body">
             {% for e in eci %}
             <h4 class="card-title"> <a href="{{e.producto.link}}">{{e.producto.nombre}}</a></h4>
+            <form action="/historical/" method="get">
+                <input id="web" name="web" type="hidden" value="eci">
+                <input id="name" name="name" type="hidden" value="{{e.producto.nombre}}">
+                <input id="ean" name="ean" type="hidden" value={{e.producto.ean}}>
+            <h5 class="card-title"><button  class="btn btn-secondary"> 
+                {% fontawesome_icon 'table' color='green' %} Historial de precio </button></h5>
+            </form>
             <p class="card-text"><h6>Descripción:</h6> {{e.producto.descripcion}}</p>
             <div class="card-text"><h6>Precio:</h6><div style="font-size:20px"> {{e.precio}}€ </div></p>
             {% endfor %}

@@ -4,6 +4,7 @@ import re
 import json as jsonConverter
 from .models import *
 
+product_set = set()
 
 def open_url(url, file):
     urllib.request.urlretrieve(url, file)
@@ -63,6 +64,7 @@ def extract_data_elCorteIngles(key_word):
 
 
 def extract_data_mediaMarkt(key_word):
+    product_set.clear() 
     res = []
     fichero = "mediaMarkt"
     ficheroElement = "mediaMarktElement"
@@ -99,7 +101,6 @@ def extract_an_element_MM(res, soup, link):
                 if len(var.split("="))==2:
                     try:
                         jsonVar = jsonConverter.loads(var.split("=")[1].strip())
-                        print(jsonVar)
                         if 'ean' in jsonVar:
                             jsonProduct = jsonVar
                             break
@@ -109,19 +110,21 @@ def extract_an_element_MM(res, soup, link):
                 ean = jsonProduct['ean']
                 nombre = jsonProduct['name']
                 price = jsonProduct ['price']
+                description = '' 
                 p =  soup.find("article", class_="description").findAll("p")
-                if(len(p)>1):
-                    description = p[1].contents[0]
+                for p in ps:
+                    description+=p.contents[0]
                 else:
                     divs = soup.find("article", class_="description").findAll('div')
                     if len(divs)>1:   
                         description = divs[0].contents[0]
-                    else:
-                        ps = soup.find("article", class_="description").findAll('p')
-                        description = '' 
-                        for p in ps:
-                            description+=p.contents[0]
-                attributes = {'ean' : ean,'title':nombre, 'price':price, 'link': link, 'description':description}
-                res.append(attributes)
+            
+    print(ean)
+    print(product_set)
+    print(ean not in product_set)
+    if ean not in product_set:
+        attributes = {'ean' : ean,'title':nombre, 'price':price, 'link': link, 'description':description}
+        product_set.add(ean)
+        res.append(attributes)
             
     return res

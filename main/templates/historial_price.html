@@ -1,0 +1,26 @@
+{% include 'header.html' %}
+{% block content %}
+<div class="jumbotron">
+  <h1 style=" text-align: center; margin-left:auto; margin-right:auto;"> Historial de precios de {{name}} en
+     <span style="color: {{color}}">{{shop}} </span></h1>
+
+
+<table class="table table-hover" style= "width:48%; margin-top: 10px;   margin-left:auto; margin-right:auto;">
+  <thead class="table-dark">
+    <tr>
+      <th scope="col">Fecha</th>
+      <th scope="col">Precio</th>
+    </tr>
+  </thead>
+  <tbody>
+ {% for r in res %}
+    <tr class="table-light">
+      <th scope="row">{{r.fecha}}</th>
+      <td>{{r.precio}}</td>
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
+{% include 'footer.html' %}
