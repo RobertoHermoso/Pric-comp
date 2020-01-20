@@ -4,12 +4,12 @@
 {% fontawesome_stylesheet %}
 <body>
 {% if mostrar %}
-    <div class="jumbotron">
+<div class="jumbotron">
         <h1> Resultados para: {{ productName }} </h1>
-    </div>
+
 <div style="display: table; clear: both;">
         <div class="card border-danger mb-3 column" style="float: left;width:48%;padding: 10px; margin: 10px;">
-        <div class="card-header"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Media_Markt_logo.svg/800px-Media_Markt_logo.svg.png" width="20%" height="20%"></div>
+        <div class="card-header"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Media_Markt_logo.svg/800px-Media_Markt_logo.svg.png" width="30%" height="30%"></div>
         <div class="card-body">
             {% for m in mm %}
             <h4 class="card-title"> <a href="{{m.producto.link}}">{{m.producto.nombre}}</a></h4>
@@ -22,6 +22,7 @@
             </form>
             <p class="card-text"><h6>Descripción:</h6> {{m.producto.descripcion}}</p>
             <p class="card-text"><h6>Precio:</h6> <div  style="font-size:20px"> {{m.precio}}€ </div></p>
+            <hr>
             {% endfor %}
         </div>
         </div>
@@ -39,10 +40,11 @@
             </form>
             <p class="card-text"><h6>Descripción:</h6> {{e.producto.descripcion}}</p>
             <div class="card-text"><h6>Precio:</h6><div style="font-size:20px"> {{e.precio}}€ </div></p>
+            <hr>
             {% endfor %}
         </div>
         </div>
-
+</div>
 {% endif %}
 </body>
 {% endblock %}

@@ -42,7 +42,11 @@ def compare(request):
             eci_ean = set()
             mm_ean = set()
             for prod in eci:
-                Producto_ECI.objects.update_or_create(ean=str(prod["ean"]), nombre=str(prod["title"]), descripcion=str(prod["description"]), link=str(prod["link"]))
+                num_results = Producto_ECI.objects.filter(ean = str(prod["ean"])).count()
+                if num_results == 0:
+                    Producto_ECI.objects.create(ean=str(prod["ean"]), nombre=str(prod["title"]), descripcion=str(prod["description"]), link=str(prod["link"]))
+                else:
+                    Producto_ECI.objects.filter(ean = str(prod["ean"])).update(nombre=str(prod["title"]), descripcion=str(prod["description"]), link=str(prod["link"]))
                 historico = Historico_ECI.objects.filter(producto_id=prod["ean"]).order_by("-fecha")
 
                 #We check if is not void
@@ -54,7 +58,11 @@ def compare(request):
                     Historico_ECI.objects.create(fecha=datetime.datetime.now(), producto_id=str(prod["ean"]), precio=str(prod["price"]))
                 eci_ean.add(str(prod["ean"]))
             for prodM in mm:
-                Producto_MM.objects.update_or_create(ean=str(prodM["ean"]), nombre=str(prodM["title"]), descripcion=str(prodM["description"]), link=str(prodM["link"]))
+                num_results = Producto_MM.objects.filter(ean = str(prodM["ean"])).count()
+                if num_results == 0:
+                    Producto_MM.objects.create(ean=str(prodM["ean"]), nombre=str(prodM["title"]), descripcion=str(prodM["description"]), link=str(prodM["link"]))
+                else:
+                    Producto_MM.objects.filter(ean = str(prod["ean"])).update(nombre=str(prodM["title"]), descripcion=str(prodM["description"]), link=str(prodM["link"]))
                 historico = Historico_MM.objects.filter(producto_id=prodM["ean"]).order_by("-fecha")
 
                 #We check if is not void
