@@ -15,7 +15,7 @@ def open_url(url, file):
 def extract_data_elCorteIngles(key_word):
     res = []
     fichero = "elCorteIngles"
-    fichero2 = "elCorteIngles2"
+    fichero2 = "elCorteInglesElement"
     key_word = urllib.parse.quote(key_word)
     url = "https://www.elcorteingles.es/search?s=" + key_word
     if open_url(url, fichero):
@@ -37,7 +37,6 @@ def extract_data_elCorteIngles(key_word):
                 title = soup2.find("h2", "title").contents[0]
                 spanLabels = soup2.find("div", "product-price").findAll("span", "hidden")
                 image = 'https:' + soup2.find('img', id='product-image-placer').get('src')
-                print(image)
                 price = ""
                 for span in spanLabels:
                     if span["itemprop"] == "price":
@@ -117,7 +116,6 @@ def extract_an_element_MM(res, soup, link):
                 description = ps.get_text()
                 description = description.replace('Descripción', '')
     image = 'https:' + soup.find('div', class_="preview").find('a').get('href')
-    print(image)
     if ean not in product_set:
         
         attributes = {'ean' : ean,'title':nombre, 'price':price, 'link': link, 'description':description, 'image': image}

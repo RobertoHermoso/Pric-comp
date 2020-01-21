@@ -3,8 +3,14 @@
 <body>
 <form class="" action="/search/" method="post">{% csrf_token %}
     <input class="form-control mr-sm-2" type="text" name="key_word" placeholder="Texto">
-        <button class="btn btn-secondary my-2 my-sm-0" type="submit">Buscar</button>
-    </form>
+    <br>
+    <select name="type" required>
+      <option value="R" selected>Resctrictiva</option>
+      <option value="P">Permisiva</option>
+    </select>
+    <br><br>
+    <button class="btn btn-secondary my-2 my-sm-0" type="submit">Buscar</button>
+</form>
 </body>
 {% endblock %}
 {% include 'footer.html' %}

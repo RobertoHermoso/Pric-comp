@@ -6,8 +6,9 @@ PricEComp/__pycache__/
 main/migrations/
 
 elCorteIngles
-elCorteIngles2
+elCorteInglesElement
 db.sqlite3
-
 mediaMarktElement
 mediaMarkt
+fnac
+fnacElement

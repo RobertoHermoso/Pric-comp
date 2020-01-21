@@ -7,6 +7,7 @@ import os
 from whoosh.index import create_in, open_dir
 from whoosh.fields import Schema, TEXT, KEYWORD, DATETIME, NUMERIC
 from whoosh.qparser import QueryParser, MultifieldParser, OrGroup, AndGroup
+from whoosh.query import Or, And, Query, Term
 
 dirindex = "main/index"
 
@@ -23,22 +24,37 @@ def search(request):
             if not aux_check_index():
                 aux_reset_all()
             key = form.cleaned_data['key_word']
+            type = form.cleaned_data['type']
             ix = open_dir(dirindex)
             with ix.searcher() as searcher:
-                query = MultifieldParser(['descripcionECI', 'descripcionMM'], ix.schema).parse(key)
+                words = key.strip().split()
+                terms_classified = []
+                for word in words:
+                    terms = []
+                    for desc in ['descripcionECI', 'descripcionMM', 'descripcionFC']:
+                        terms.append(Term(desc, word))
+                    terms_classified.append(terms)
+                subqueries = []
+                for t in terms_classified:
+                    subqueries.append(Or(t))
+                query = subqueries[0]
+                if len(subqueries) > 1:
+                    if type == 'P':
+                        query = Or(subqueries)
+                    else:
+                        query = And(subqueries)
                 results = searcher.search(query)
     else:
         form = Search_Form()
-
     return render(request, 'search.html', {'form': form})
 
 
 def compare(request):
     if request.method == 'GET':
-        form = Search_Form()
+        form = Compare_Form()
         return render(request, 'index.html', {'form': form})
     else:
-        form = Search_Form(request.POST)
+        form = Compare_Form(request.POST)
         if form.is_valid():
             if not aux_check_index():
                 aux_reset_all()
@@ -49,6 +65,7 @@ def compare(request):
             eci_ean = set()
             mm_ean = set()
             fn_ean = set()
+            fecha = datetime.datetime.now()
             for prod in eci:
                 num_results = Producto_ECI.objects.filter(ean = str(prod["ean"])).count()
                 if num_results == 0:
@@ -61,9 +78,9 @@ def compare(request):
                 if len(historico)>0:
                     #We check if the price changed
                     if historico[0].precio!= prod["price"]:
-                        Historico_ECI.objects.create(fecha=datetime.datetime.now(), producto_id=str(prod["ean"]), precio=str(prod["price"]))
+                        Historico_ECI.objects.create(fecha=fecha, producto_id=str(prod["ean"]), precio=str(prod["price"]))
                 else:
-                    Historico_ECI.objects.create(fecha=datetime.datetime.now(), producto_id=str(prod["ean"]), precio=str(prod["price"]))
+                    Historico_ECI.objects.create(fecha=fecha, producto_id=str(prod["ean"]), precio=str(prod["price"]))
                 eci_ean.add(str(prod["ean"]))
             for prodM in mm:
                 num_results = Producto_MM.objects.filter(ean = str(prodM["ean"])).count()
@@ -76,9 +93,9 @@ def compare(request):
                 if len(historico)>0:
                     #We check if the price changed
                     if historico[0].precio!= prodM["price"]:
-                        Historico_MM.objects.create(fecha=datetime.datetime.now(), producto_id=str(prodM["ean"]), precio=str(prodM["price"]))
+                        Historico_MM.objects.create(fecha=fecha, producto_id=str(prodM["ean"]), precio=str(prodM["price"]))
                 else:
-                    Historico_MM.objects.create(fecha=datetime.datetime.now(), producto_id=str(prodM["ean"]), precio=str(prodM["price"]))
+                    Historico_MM.objects.create(fecha=fecha, producto_id=str(prodM["ean"]), precio=str(prodM["price"]))
                 mm_ean.add(str(prodM["ean"]))
                 
             for prodF in fn:
@@ -86,15 +103,15 @@ def compare(request):
                 if num_results == 0:
                     Producto_FC.objects.create(ean=str(prodF["ean"]), nombre=str(prodF["title"]), descripcion=str(prodF["description"]), link=str(prodF["link"]), image=str(prodF['image']))
                 else:
-                    Producto_FC.objects.filter(ean = str(prodF["ean"])).update(nombre=str(prodM["title"]), descripcion=str(prodF["description"]), link=str(prodF["link"]), image=str(prodF['image']))
+                    Producto_FC.objects.filter(ean = str(prodF["ean"])).update(nombre=str(prodF["title"]), descripcion=str(prodF["description"]), link=str(prodF["link"]), image=str(prodF['image']))
                 historico = Historico_FC.objects.filter(producto_id=prodF["ean"]).order_by("-fecha")
                 #We check if is not void
                 if len(historico)>0:
                     #We check if the price changed
                     if historico[0].precio!= prodF["price"]:
-                        Historico_FC.objects.create(fecha=datetime.datetime.now(), producto_id=str(prodF["ean"]), precio=str(prodF["price"]))
+                        Historico_FC.objects.create(fecha=fecha, producto_id=str(prodF["ean"]), precio=str(prodF["price"]))
                 else:
-                    Historico_FC.objects.create(fecha=datetime.datetime.now(), producto_id=str(prodF["ean"]), precio=str(prodF["price"]))
+                    Historico_FC.objects.create(fecha=fecha, producto_id=str(prodF["ean"]), precio=str(prodF["price"]))
                 fn_ean.add(str(prodF["ean"]))
             l = list(eci_ean & mm_ean & fn_ean)
             mostrar = False
@@ -109,10 +126,16 @@ def compare(request):
                     eci = Historico_ECI.objects.filter(producto_id=e).order_by("-fecha")[0]
                     mm = Historico_MM.objects.filter(producto_id=e).order_by("-fecha")[0]
                     fc = Historico_FC.objects.filter(producto_id=e).order_by("-fecha")[0]
-                    add_doc(e, mm.producto.descripcion, eci.producto.descripcion)
+                    ix = open_dir(dirindex)
+                    with ix.searcher() as searcher:
+                        query = Term('ean', e)
+                        if len(searcher.search(query))>0:
+                            delete_doc(writer, searcher, e)
+                    add_doc(writer, e, mm.producto.descripcion.strip(), eci.producto.descripcion.strip(), fc.producto.descripcion.strip())
                     prod_eci.append(eci)
                     prod_mm.append(mm)
                     prod_fc.append(fc)
+                writer.commit()
             return render(request, 'compare_result.html', {"eci": prod_eci, "mm": prod_mm, 'fc': prod_fc, "productName": key, "mostrar": mostrar})
 
 
@@ -149,7 +172,7 @@ def aux_reset_all():
 def aux_reset_index():
     if not os.path.exists(dirindex):
         os.mkdir(dirindex)
-    ix = create_in(dirindex, schema=Schema(ean=NUMERIC(int, 64, stored=True), descripcionMM=TEXT(stored=True), descripcionECI=TEXT(stored=True)))
+    ix = create_in(dirindex, schema=Schema(ean=NUMERIC(int, 64, stored=True), descripcionMM=TEXT(stored=True), descripcionECI=TEXT(stored=True), descripcionFC=TEXT(stored=True)))
     writer = ix.writer()
     writer.commit()
 
@@ -172,5 +195,8 @@ def aux_check_index():
     return check
 
 
-def add_doc(writer, ean, descripcionMM, descripcionECI):
-    writer.add_document(ean=ean, descripcionMM=descripcionMM, descripcionECI=descripcionECI)
+def add_doc(writer, ean, descripcionMM, descripcionECI, descripcionFC):
+    writer.add_document(ean=ean, descripcionMM=descripcionMM, descripcionECI=descripcionECI, descripcionFC=descripcionFC)
+
+def delete_doc(writer, searcher, ean):
+    writer.delete_by_term("ean", ean, searcher)
