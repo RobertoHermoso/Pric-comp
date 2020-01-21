@@ -1,14 +1,7 @@
-
 .vscode/
 main/index/
 main/__pycache__/
 PricEComp/__pycache__/
 main/migrations/
-
-elCorteIngles
-elCorteInglesElement
+main/html/
 db.sqlite3
-mediaMarktElement
-mediaMarkt
-fnac
-fnacElement

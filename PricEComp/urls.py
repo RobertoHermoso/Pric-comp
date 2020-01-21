@@ -23,5 +23,6 @@ urlpatterns = [
     path("search/", views.search),
     path("historical/", views.historial_price),
     path("compare/", views.compare),
-    path("reset_all/", views.reset_all)
+    path("reset_all/", views.reset_all),
+    path("list_all/", views.list_all)
 ]
