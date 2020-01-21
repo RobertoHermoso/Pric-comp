@@ -6,7 +6,7 @@ import datetime
 import os
 from whoosh.index import create_in, open_dir
 from whoosh.fields import Schema, TEXT, KEYWORD, DATETIME, NUMERIC
-from whoosh.qparser import QueryParser, MultifieldParser
+from whoosh.qparser import QueryParser, MultifieldParser, OrGroup, AndGroup
 
 dirindex = "main/index"
 
@@ -20,11 +20,17 @@ def search(request):
     if request.method == 'POST':
         form = Search_Form(request.POST)
         if form.is_valid():
-            return compare(request)
+            if not aux_check_index():
+                aux_reset_all()
+            key = form.cleaned_data['key_word']
+            ix = open_dir(dirindex)
+            with ix.searcher() as searcher:
+                query = MultifieldParser(['descripcionECI', 'descripcionMM'], ix.schema).parse(key)
+                results = searcher.search(query)
     else:
         form = Search_Form()
 
-    return render(request, 'index.html', {'form': form})
+    return render(request, 'search.html', {'form': form})
 
 
 def compare(request):
@@ -96,6 +102,8 @@ def compare(request):
             prod_mm = []
             prod_fc = []
             if len(l) > 0:
+                ix = open_dir(dirindex)
+                writer = ix.writer()
                 mostrar = True
                 for e in l:
                     eci = Historico_ECI.objects.filter(producto_id=e).order_by("-fecha")[0]
@@ -164,7 +172,5 @@ def aux_check_index():
     return check
 
 
-def add_doc(ean, descripcionMM, descripcionECI):
-    ix = open_dir(dirindex)
-    writer = ix.writer()
+def add_doc(writer, ean, descripcionMM, descripcionECI):
     writer.add_document(ean=ean, descripcionMM=descripcionMM, descripcionECI=descripcionECI)
