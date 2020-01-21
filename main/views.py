@@ -183,7 +183,21 @@ def list_all(request):
     eci = []
     mm = []
     fc = []
-    return render(request, 'results.html', {"eci": eci, "mm": mm, 'fc': fc, "title": "Estos son todos los resultados", "mostrar": False})
+    ean_eci = set()
+    ean_mm = set()
+    ean_fc = set()
+    for p in Producto_ECI.objects.all():
+        ean_eci.add(p.ean)
+    for p in Producto_MM.objects.all():
+        ean_mm.add(p.ean)
+    for p in Producto_FC.objects.all():
+        ean_fc.add(p.ean)
+    ean = list(ean_eci & ean_mm & ean_fc)
+    for e in ean:
+        eci.append(Historico_ECI.objects.filter(producto_id=e).order_by("-fecha")[0])
+        mm.append(Historico_MM.objects.filter(producto_id=e).order_by("-fecha")[0])
+        fc.append(Historico_FC.objects.filter(producto_id=e).order_by("-fecha")[0])
+    return render(request, 'results.html', {"eci": eci, "mm": mm, 'fc': fc, "title": "Estos son todos los resultados", "mostrar": True})
 
 # Métodos auxiliares
 
