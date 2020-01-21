@@ -142,23 +142,26 @@ def extract_data_fnac(key_word):
         for product in products:
             link = product.find("a").get('href')
             if open_url(link, ficheroElement):
-                f1 = open(ficheroElement, encoding='utf-8')
-                s1 = f1.read()
-                soup = BeautifulSoup(s1, "html.parser")
-                #EAN
-                ean = soup.find('div', class_="f-productHeader-additionalInformation f-productHeader-review").find('span').get('data-ean')
-                #Title
-                title = soup.find('h1', class_="f-productHeader-Title").get_text().strip()
-                #Description
-                if soup.find('div', class_="whiteContent js-productSummaryTrimHeight-target"):  
-                    description = soup.find('div', class_="whiteContent js-productSummaryTrimHeight-target").get_text()
-                else:
-                    description = 'No hay descprición'
-                #Price
-                price = soup.find('div', class_="f-priceBox").get_text()
-                #Image
-                image = soup.find('img', class_="f-productVisuals-mainMedia js-ProductVisuals-imagePreview").get('src')
-                attributes = {'ean' : ean,'title':title, 'price':price, 'link': link, 'description':description, 'image':image}
-                res.append(attributes)
+                try:
+                    f1 = open(ficheroElement, encoding='utf-8')
+                    s1 = f1.read()
+                    soup = BeautifulSoup(s1, "html.parser")
+                    #EAN
+                    ean = soup.find('div', class_="f-productHeader-additionalInformation f-productHeader-review").find('span').get('data-ean')
+                    #Title
+                    title = soup.find('h1', class_="f-productHeader-Title").get_text().strip()
+                    #Description
+                    if soup.find('div', class_="whiteContent js-productSummaryTrimHeight-target"):  
+                        description = soup.find('div', class_="whiteContent js-productSummaryTrimHeight-target").get_text()
+                    else:
+                        description = 'No hay descprición'
+                    #Price
+                    price = soup.find('div', class_="f-priceBox").get_text()
+                    #Image
+                    image = soup.find('img', class_="f-productVisuals-mainMedia js-ProductVisuals-imagePreview").get('src')
+                    attributes = {'ean' : ean,'title':title, 'price':price, 'link': link, 'description':description, 'image':image}
+                    res.append(attributes)
+                except:
+                    continue
     return res
 
