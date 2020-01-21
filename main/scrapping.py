@@ -10,6 +10,7 @@ def open_url(url, file):
     urllib.request.urlretrieve(url, file)
     return file
 
+#------------------------------------ Srapping EL CORTE INGLES ---------------------------------------
 
 def extract_data_elCorteIngles(key_word):
     res = []
@@ -35,6 +36,8 @@ def extract_data_elCorteIngles(key_word):
                 soup2 = BeautifulSoup(sp, "html.parser")
                 title = soup2.find("h2", "title").contents[0]
                 spanLabels = soup2.find("div", "product-price").findAll("span", "hidden")
+                image = 'https:' + soup2.find('img', id='product-image-placer').get('src')
+                print(image)
                 price = ""
                 for span in spanLabels:
                     if span["itemprop"] == "price":
@@ -56,13 +59,13 @@ def extract_data_elCorteIngles(key_word):
                                 ean = ref.contents[0]
                                 res.append(
                                     {"ean": ean, "title": title, "description": description, "price": price,
-                                     "link": link})
+                                     "link": link, 'image': image})
                                 break
                 except:
                     pass
         return res
 
-
+#------------------------------------ Srapping MEDIA MARKT ---------------------------------------
 def extract_data_mediaMarkt(key_word):
     product_set.clear() 
     res = []
@@ -113,10 +116,51 @@ def extract_an_element_MM(res, soup, link):
                 ps =  soup.find("article", class_="description")
                 description = ps.get_text()
                 description = description.replace('Descripción', '')
+    image = 'https:' + soup.find('div', class_="preview").find('a').get('href')
+    print(image)
     if ean not in product_set:
         
-        attributes = {'ean' : ean,'title':nombre, 'price':price, 'link': link, 'description':description}
+        attributes = {'ean' : ean,'title':nombre, 'price':price, 'link': link, 'description':description, 'image': image}
         product_set.add(ean)
         res.append(attributes)
             
     return res
+
+#------------------------------------ Srapping FNAC ---------------------------------------
+
+def extract_data_fnac(key_word):
+    res = []
+    fichero = "fnac"
+    ficheroElement = "fnacElement"
+    key_word = key_word.replace(" ", "+")
+    
+    url = "https://www.fnac.es/SearchResult/ResultList.aspx?SCat=0%211&Search=" + key_word + "&sft=1&sa=0"
+    if open_url(url, fichero):
+        f = open(fichero, encoding="utf-8")
+        s = f.read()
+        soup = BeautifulSoup(s, "html.parser")
+
+        products = soup.findAll("article", class_="Article-itemGroup js-article-thumbnail")
+        for product in products:
+            link = product.find("a").get('href')
+            if open_url(link, ficheroElement):
+                f1 = open(ficheroElement, encoding='utf-8')
+                s1 = f1.read()
+                soup = BeautifulSoup(s1, "html.parser")
+                #EAN
+                ean = soup.find('div', class_="f-productHeader-additionalInformation f-productHeader-review").find('span').get('data-ean')
+                #Title
+                title = soup.find('h1', class_="f-productHeader-Title").get_text().strip()
+                #Description
+                if soup.find('div', class_="whiteContent js-productSummaryTrimHeight-target"):  
+                    description = soup.find('div', class_="whiteContent js-productSummaryTrimHeight-target").get_text()
+                else:
+                    description = 'No hay descprición'
+                #Price
+                price = soup.find('div', class_="f-priceBox").get_text()
+                #Image
+                image = soup.find('img', class_="f-productVisuals-mainMedia js-ProductVisuals-imagePreview").get('src')
+                attributes = {'ean' : ean,'title':title, 'price':price, 'link': link, 'description':description, 'image':image}
+                res.append(attributes)
+    return res
+
