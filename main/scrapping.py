@@ -149,7 +149,7 @@ def extract_data_fnac(key_word, iterable):
     fichero = "main/html/fnac"
     ficheroElement = "main/html/fnacElement"
     key_word = urllib.parse.quote(key_word)
-aux = True
+    aux = True
     currentPage = 1
 
     url = "https://www.fnac.es/SearchResult/ResultList.aspx?SCat=0%211&Search=" + key_word + "&sft=1&sa=0"
@@ -193,7 +193,7 @@ aux = True
                         res.append(attributes)
                     except:
                         continue
-        if int(currentPage) == int(pages) || iterable:
+        if int(currentPage) == int(pages) or iterable:
             break
         else:
             currentPage+=1
