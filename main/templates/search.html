@@ -5,6 +5,15 @@
 {% fontawesome_stylesheet %}
 
 <body>
+
+
+<div style="margin: 0 auto;  width:800px; margin-top: 40px;">
+    <ul>
+        <li><div style="font-weight: bold; float:left">Nivel 1: </div>Al menos una de las palabras introducidas debe aparecer en alguna de las descripciones del producto.</li>
+        <li><div style="font-weight: bold; float:left">Nivel 2: </div>Todas las palabras introducidas deben aparecer en alguna de las descripciones del producto.</li>
+        <li><div style="font-weight: bold; float:left">Nivel 3: </div>Todas las palabras introducidas deben aparecer en todas las descripciones del producto.</li>
+    </ul>
+</div>
 <div class="form-group" style="margin: 0 auto;  width:700px; margin-top: 10px;">
   <form class="" action="/search/" method="post">{% csrf_token %}
    <label for="key_word"> Introduce una o varias palabras </label>
@@ -16,17 +25,10 @@
         <option value="N2">Nivel 2</option>
         <option value="N3" selected>Nivel 3</option>
       </select>
+      
       <br><br>
       <button class="btn btn-info my-2 my-sm-0" type="submit">Buscar</button>
   </form>
-</div>
-
-<div>
-    <ul>
-        <li><b>Nivel 1: </b>Al menos una de las palabras introducidas debe aparecer en alguna de las descripciones del producto.</li>
-        <li><b>Nivel 2: </b>Todas las palabras introducidas deben aparecer en alguna de las descripciones del producto.</li>
-        <li><b>Nivel 3: </b>Todas las palabras introducidas deben aparecer en todas las descripciones del producto.</li>
-    </ul>
 </div>
 
 {% if mostrar %}
