@@ -12,7 +12,7 @@ def open_url(url, file):
 
 #------------------------------------ Srapping EL CORTE INGLES ---------------------------------------
 
-def extract_data_elCorteIngles(key_word):
+def extract_data_elCorteIngles(key_word, iterable):
     res = []
     fichero = "main/html/elCorteIngles"
     fichero2 = "main/html/elCorteInglesElement"
@@ -33,7 +33,7 @@ def extract_data_elCorteIngles(key_word):
                     continua = False
             if continua:
                 page = page + 1
-                if page > numPags:
+                if page > numPags or not iterable:
                     continua = False
             products = soup.findAll("div", "product-preview")
             for product in products:
@@ -81,32 +81,48 @@ def extract_data_elCorteIngles(key_word):
     return res
 
 #------------------------------------ Srapping MEDIA MARKT ---------------------------------------
-def extract_data_mediaMarkt(key_word):
-    product_set.clear()
+def extract_data_mediaMarkt(key_word, iterable):
     res = []
+    product_set.clear() 
     fichero = "main/html/mediaMarkt"
     ficheroElement = "main/html/mediaMarktElement"
+    aux = True
+    currentPage = 1
     key_word = urllib.parse.quote(key_word)
     url = "https://www.mediamarkt.es/es/search.html?query=" + key_word + "&searchProfile=onlineshop&channel=mmeses"
-    if open_url(url, fichero):
-        f = open(fichero, encoding="utf-8")
-        s = f.read()
-        soup = BeautifulSoup(s, "html.parser")
+    while aux:
+        if open_url(url, fichero):
+            f = open(fichero, encoding="utf-8")
+            s = f.read()
+            soup = BeautifulSoup(s, "html.parser")
+            if currentPage == 1:
+                pages = soup.find('ul', class_="pagination")
+                if pages is not None:
+                    pages = pages.findAll('li')
+                    pages = pages[len(pages)-2].get('data-value')
+                else:
+                    pages = 1
 
-        products = soup.find("ul", class_="products-list")
-        #List
-        if products is not None:
-            products = products.findAll('div', class_='product-wrapper')
-            for product in products:
-                link ="https://www.mediamarkt.es"+ product.find("h2").find("a").get('href')
-                if open_url(link, ficheroElement):
-                    f1 = open(ficheroElement, encoding='utf-8')
-                    s1 = f1.read()
-                    soup = BeautifulSoup(s1, "html.parser")
-                    res = extract_an_element_MM(res, soup, link)
-        #One element
+            products = soup.find("ul", class_="products-list")
+            #List
+            if products is not None:
+                products = products.findAll('div', class_='product-wrapper')
+                for product in products:
+                    link ="https://www.mediamarkt.es"+ product.find("h2").find("a").get('href')
+                    if open_url(link, ficheroElement):
+                        f1 = open(ficheroElement, encoding='utf-8')
+                        s1 = f1.read()
+                        soup = BeautifulSoup(s1, "html.parser")
+                        res = extract_an_element_MM(res, soup, link)
+            #One element        
+            else:
+                res = extract_an_element_MM(res, soup, url)
+        if int(currentPage) == int(pages) or not iterable:
+            break
         else:
-            res = extract_an_element_MM(res, soup, url)
+            currentPage+=1
+            url = "https://www.mediamarkt.es/es/search.html?query=" + key_word + "&searchProfile=onlineshop&channel=mmeses&page="+ str(currentPage)
+            print(url)
     return res
 
 def extract_an_element_MM(res, soup, link):
@@ -193,7 +209,7 @@ def extract_data_fnac(key_word, iterable):
                         res.append(attributes)
                     except:
                         continue
-        if int(currentPage) == int(pages) or iterable:
+        if int(currentPage) == int(pages) or not iterable:
             break
         else:
             currentPage+=1
