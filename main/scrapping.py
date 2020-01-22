@@ -161,7 +161,11 @@ def extract_data_fnac(key_word):
                     else:
                         description = 'No hay descprición'
                     #Price
-                    price = soup.find('div', class_="f-priceBox").get_text()
+                    prices =  soup.find('div', class_="f-priceBox").findAll("span")
+                    if len(prices)==2:
+                        price = prices[1].get_text().replace('€','')
+                    else:
+                        price = soup.find('div', class_="f-priceBox").get_text().replace("€", "")
                     #Image
                     image = soup.find('img', class_="f-productVisuals-mainMedia js-ProductVisuals-imagePreview").get('src')
                     attributes = {'ean' : ean,'title':title, 'price':price, 'link': link, 'description':description, 'image':image}

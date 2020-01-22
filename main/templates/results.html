@@ -1,6 +1,7 @@
 {% include 'header.html' %}
 {% block content %}
 {% load fontawesome %}
+{% load static %}
 {% fontawesome_stylesheet %}
 <body>
 <div class="jumbotron">
@@ -10,7 +11,7 @@
 <div style="display: table; clear: both;">
 
     <div class="card border-danger mb-3 column" style="float: left;width:31%;padding: 10px; margin: 12px;">
-        <div class="card-header"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Media_Markt_logo.svg/800px-Media_Markt_logo.svg.png" width="30%" height="30%"></div>
+        <div class="card-header"><img src="{% static 'img/mediamarkt.png' %}" width="30%" height="30%"></div>
         <div class="card-body">
             {% for m in mm %}
                 <h4 class="card-title"> <a href="{{m.producto.link}}">{{m.producto.nombre}}</a></h4>
@@ -30,7 +31,7 @@
     </div>
 
     <div class="card border-success mb-3 column"  style="float: left;width:31%;padding: 10px; margin: 12px;">
-        <div class="card-header"><img src="https://www.elcorteingles.es/recursos/informacioncorporativa/doc/portal/2017/07/06/eci-triangulo-logo.png"  width="20%" height="20%"></div>
+        <div class="card-header"><img src="{% static 'img/eci.png' %}"  width="20%" height="20%"></div>
         <div class="card-body">
             {% for e in eci %}
                 <h4 class="card-title"> <a href="{{e.producto.link}}">{{e.producto.nombre}}</a></h4>
@@ -50,7 +51,7 @@
     </div>
 
     <div class="card border-warning mb-3 column"  style="float: left;width:31%;padding: 10px; margin: 12px;">
-        <div class="card-header"><img src="https://leotec.com/wp-content/uploads/2019/02/fnac.png"  width="24%" height="24%"></div>
+        <div class="card-header"><img src="{% static 'img/fnac.png' %}"   width="24%" height="24%"></div>
         <div class="card-body">
             {% for f in fc %}
                 <h4 class="card-title"> <a href="{{f.producto.link}}">{{f.producto.nombre}}</a></h4>
