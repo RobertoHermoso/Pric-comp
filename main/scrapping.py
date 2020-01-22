@@ -17,59 +17,72 @@ def extract_data_elCorteIngles(key_word):
     fichero = "main/html/elCorteIngles"
     fichero2 = "main/html/elCorteInglesElement"
     key_word = urllib.parse.quote(key_word)
-    url = "https://www.elcorteingles.es/search?s=" + key_word
-    if open_url(url, fichero):
-        f = open(fichero, encoding="utf-8")
-        s = f.read()
-        soup = BeautifulSoup(s, "html.parser")
-        products = soup.findAll("div", "product-preview")
-        for product in products:
-            try:
-                aLabels = product.findAll("a", "event")
-                link = "https://www.elcorteingles.es"
-                for a in aLabels:
-                    if a["data-event"] == "product_click":
-                        link = link + a["href"]
-                        break
-                if open_url(link, fichero2):
-                    fp = open(fichero2, encoding="utf-8")
-                    sp = fp.read()
-                    soup2 = BeautifulSoup(sp, "html.parser")
-                    title = soup2.find("h2", "title").contents[0]
-                    spanLabels = soup2.find("div", "product-price").findAll("span", "hidden")
-                    image = 'https:' + soup2.find('img', id='product-image-placer').get('src')
-                    price = ""
-                    for span in spanLabels:
-                        if span["itemprop"] == "price":
-                            price = span.contents[0]
+    page = 1
+    numPags = 0
+    continua = True
+    while continua:
+        url = "https://www.elcorteingles.es/search/" + str(page) + "/?s=" + key_word
+        if open_url(url, fichero):
+            f = open(fichero, encoding="utf-8")
+            s = f.read()
+            soup = BeautifulSoup(s, "html.parser")
+            if page == 1:
+                try:
+                    numPags = int(str(soup.find("div", "pagination").find("div", "mobile-view").contents[0]).split("de")[1])
+                except:
+                    continua = False
+            if continua:
+                page = page + 1
+                if page > numPags:
+                    continua = False
+            products = soup.findAll("div", "product-preview")
+            for product in products:
+                try:
+                    aLabels = product.findAll("a", "event")
+                    link = "https://www.elcorteingles.es"
+                    for a in aLabels:
+                        if a["data-event"] == "product_click":
+                            link = link + a["href"]
                             break
-                    description = ""
-                    try:
-                        descs = soup2.find("div", "description-container").findAll("p", "content")
-                        for desc in descs:
-                            description = description + desc.contents[0]
-                    except:
-                        pass
-                    try:
-                        references = soup2.find("div", "reference").findAll("span")
-                        ean = ""
-                        for ref in references:
-                            if "id" in ref.attrs:
-                                if ref["id"] == "ean-ref":
-                                    ean = ref.contents[0]
-                                    res.append(
-                                        {"ean": ean, "title": title, "description": description, "price": price,
-                                         "link": link, 'image': image})
-                                    break
-                    except:
-                        pass
-            except:
-                continue
-        return res
+                    if open_url(link, fichero2):
+                        fp = open(fichero2, encoding="utf-8")
+                        sp = fp.read()
+                        soup2 = BeautifulSoup(sp, "html.parser")
+                        title = soup2.find("h2", "title").contents[0]
+                        spanLabels = soup2.find("div", "product-price").findAll("span", "hidden")
+                        image = 'https:' + soup2.find('img', id='product-image-placer').get('src')
+                        price = ""
+                        for span in spanLabels:
+                            if span["itemprop"] == "price":
+                                price = span.contents[0]
+                                break
+                        description = ""
+                        try:
+                            descs = soup2.find("div", "description-container").findAll("p", "content")
+                            for desc in descs:
+                                description = description + desc.contents[0]
+                        except:
+                            pass
+                        try:
+                            references = soup2.find("div", "reference").findAll("span")
+                            ean = ""
+                            for ref in references:
+                                if "id" in ref.attrs:
+                                    if ref["id"] == "ean-ref":
+                                        ean = ref.contents[0]
+                                        res.append(
+                                            {"ean": ean, "title": title, "description": description, "price": price,
+                                             "link": link, 'image': image})
+                                        break
+                        except:
+                            pass
+                except:
+                    continue
+    return res
 
 #------------------------------------ Srapping MEDIA MARKT ---------------------------------------
 def extract_data_mediaMarkt(key_word):
-    product_set.clear() 
+    product_set.clear()
     res = []
     fichero = "main/html/mediaMarkt"
     ficheroElement = "main/html/mediaMarktElement"
@@ -91,11 +104,11 @@ def extract_data_mediaMarkt(key_word):
                     s1 = f1.read()
                     soup = BeautifulSoup(s1, "html.parser")
                     res = extract_an_element_MM(res, soup, link)
-        #One element        
+        #One element
         else:
             res = extract_an_element_MM(res, soup, url)
     return res
-    
+
 def extract_an_element_MM(res, soup, link):
     try:
         scripts = soup.findAll("script")
@@ -136,7 +149,7 @@ def extract_data_fnac(key_word):
     fichero = "main/html/fnac"
     ficheroElement = "main/html/fnacElement"
     key_word = urllib.parse.quote(key_word)
-    
+
     url = "https://www.fnac.es/SearchResult/ResultList.aspx?SCat=0%211&Search=" + key_word + "&sft=1&sa=0"
     if open_url(url, fichero):
         f = open(fichero, encoding="utf-8")
