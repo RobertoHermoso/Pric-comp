@@ -3,7 +3,6 @@
 {% load fontawesome %}
 {% load static %}
 {% fontawesome_stylesheet %}
-</style>
 
 <body>
 <div class="form-group" style="margin: 0 auto;  width:700px; margin-top: 10px;">
@@ -13,8 +12,9 @@
       <br>
       <label for="exampleSelect1">Selecciona el tipo de busqueda</label>
       <select class="form-control" name="type" required>
-        <option value="R" selected>Resctrictiva</option>
-        <option value="P">Permisiva</option>
+        <option value="N1">Nivel 1</option>
+        <option value="N2">Nivel 2</option>
+        <option value="N3" selected>Nivel 3</option>
       </select>
       <br><br>
       <button class="btn btn-info my-2 my-sm-0" type="submit">Buscar</button>

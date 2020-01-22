@@ -36,10 +36,13 @@ def search(request):
                     terms_classified.append(terms)
                 subqueries = []
                 for t in terms_classified:
-                    subqueries.append(Or(t))
+                    if type == 'N3':
+                        subqueries.append(And(t))
+                    else:
+                        subqueries.append(Or(t))
                 query = subqueries[0]
                 if len(subqueries) > 1:
-                    if type == 'P':
+                    if type == 'N1':
                         query = Or(subqueries)
                     else:
                         query = And(subqueries)
