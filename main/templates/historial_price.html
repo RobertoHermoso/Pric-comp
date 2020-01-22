@@ -1,9 +1,16 @@
 {% include 'header.html' %}
 {% block content %}
 <div class="jumbotron">
+
+
+<script>
+function goBack() {
+  window.history.back();
+}
+</script>
+     <button onclick="goBack()" style= "  display: block; max-width: 300px; margin: auto; width:48%; margin-bottom: 10px;" class="btn btn-primary">Volver</button>
   <h1 style=" text-align: center; margin-left:auto; margin-right:auto;"> Historial de precios de {{name}} en
      <span style="color: {{color}}">{{shop}} </span></h1>
-
 
 <table class="table table-hover" style= "width:48%; margin-top: 10px;   margin-left:auto; margin-right:auto;">
   <thead class="table-dark">
@@ -22,5 +29,6 @@
   </tbody>
 </table>
 
+</div>
 {% endblock %}
 {% include 'footer.html' %}

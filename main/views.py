@@ -44,6 +44,11 @@ def search(request):
                     else:
                         query = And(subqueries)
                 results = searcher.search(query)
+                mostrar = True
+                areResults = True
+                if len(results)==0:
+                    areResults=False
+                return render(request, 'search.html', {'form': form, 'mostrar':mostrar, 'results': results, 'areResults':areResults})
     else:
         form = Search_Form()
     return render(request, 'search.html', {'form': form})

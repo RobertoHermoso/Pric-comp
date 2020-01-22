@@ -1,16 +1,86 @@
 {% include 'header.html' %}
 {% block content %}
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+/* Create three equal columns that floats next to each other */
+.column {
+  float: left;
+  width: 33.33%;
+  padding: 10px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+p {
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+</style>
+
 <body>
-<form class="" action="/search/" method="post">{% csrf_token %}
-    <input class="form-control mr-sm-2" type="text" name="key_word" placeholder="Texto">
-    <br>
-    <select name="type" required>
-      <option value="R" selected>Resctrictiva</option>
-      <option value="P">Permisiva</option>
-    </select>
-    <br><br>
-    <button class="btn btn-secondary my-2 my-sm-0" type="submit">Buscar</button>
-</form>
+<div class="form-group" style="margin: 0 auto;  width:700px; margin-top: 10px;">
+  <form class="" action="/search/" method="post">{% csrf_token %}
+   <label for="key_word"> Introduce una o varias palabras </label>
+      <input class="form-control" type="text" name="key_word" placeholder="Texto">
+      <br>
+      <label for="exampleSelect1">Selecciona el tipo de busqueda</label>
+      <select class="form-control" name="type" required>
+        <option value="R" selected>Resctrictiva</option>
+        <option value="P">Permisiva</option>
+      </select>
+      <br><br>
+      <button class="btn btn-info my-2 my-sm-0" type="submit">Buscar</button>
+  </form>
+</div>
+{% if mostrar %}
+
+  {% if areResults  %}
+    
+    {% for res in results %}
+
+<div class="card border-primary mb-3" style="float: left; margin-left: 50px; margin-right: 50px;">
+  <div class="card-header">{{res.ean}}</div>
+  <div class="card-body">
+    <h4 class="card-title"></h4>
+    <div class="card-text"> 
+    
+<div class="row">
+  <div class="column" style="background-color:#aaa;">
+    <h2  style="color:green">El Corte Ingles</h2>
+    <p>{{res.descripcionECI}}</p>
+  </div>
+  <div class="column" style="background-color:#bbb;">
+    <h2 style="color:red">Media Markt</h2>
+    <p>{{res.descripcionMM}}</p>
+  </div>
+  <div class="column" style="background-color:#ccc;">
+    <h2 style="color: yellow;">Fnac</h2>
+    <p>{{res.descripcionFC}}</p>
+  </div>
+</div>
+    
+    </div>
+  </div>
+</div>
+    {% endfor %}
+  
+  {% else %}
+  
+
+  <h2 style="text-align: center; text-justify: inter-word; margin-top: 20px;">No se han encontrado coincidencias</h2>
+  {% endif %}
+
+{% endif %}
 </body>
 {% endblock %}
 {% include 'footer.html' %}
