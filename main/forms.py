@@ -7,7 +7,7 @@ class Compare_Form(forms.Form):
 
 class Search_Form(forms.Form):
     key_word = forms.CharField(label='key_word', max_length=100)
-    CHOICES = [('Restrictiva', 'R'), ('Permisiva', 'P')]
+    CHOICES = [('Nivel 1', 'N1'), ('Nivel 2', 'N2'), ('Nivel 3', 'N3')]
     type = forms.CharField(label='Gender', widget=forms.RadioSelect(choices=CHOICES))
 
 
