@@ -68,7 +68,7 @@ def search(request):
 def compare(request):
     if request.method == 'GET':
         form = Compare_Form()
-        return render(request, 'index.html', {'form': form})
+        return index(request)
     else:
         form = Compare_Form(request.POST)
         if form.is_valid():
@@ -76,7 +76,10 @@ def compare(request):
             if not aux_check_index():
                 aux_reset_all()
             key = form.cleaned_data['key_word']
-            iterable = form.cleaned_data['iterable']
+            pagination = form.cleaned_data['pagination']
+            iterable = False
+            if pagination == 'S':
+                iterable = True
             eci = extract_data_elCorteIngles(key, iterable)
             mm = extract_data_mediaMarkt(key, iterable)
             fn = extract_data_fnac(key, iterable)
@@ -157,6 +160,7 @@ def compare(request):
                     prod_fc.append(fc)
                 writer.commit()
             return render(request, 'results.html', {"eci": prod_eci, "mm": prod_mm, 'fc': prod_fc, "title": title + key, "mostrar": mostrar})
+        return index(request)
 
 
 def historial_price(request):

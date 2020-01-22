@@ -48,6 +48,10 @@
         }
     </script>
           <form class="form-inline my-2 my-lg-0" action="/compare/" method="post">{% csrf_token %}
+              <select class="form-control" name="pagination" required>
+                <option value="N" selected>Sin paginación</option>
+                <option value="S">Con paginación</option>
+              </select>
             <input class="form-control mr-sm-2" type="text" name="key_word" placeholder="Texto">
             <button class="btn btn-secondary my-2 my-sm-0" type="submit">Comparar</button>
           </form>
