@@ -5,15 +5,15 @@ from .models import *
 import datetime
 import os
 from whoosh.index import create_in, open_dir
-from whoosh.fields import Schema, TEXT, KEYWORD, DATETIME, NUMERIC
-from whoosh.qparser import QueryParser, MultifieldParser, OrGroup, AndGroup
-from whoosh.query import Or, And, Query, Term
+from whoosh.fields import Schema, TEXT, NUMERIC
+from whoosh.query import Or, And, Term
 
 dirindex = "main/index"
+dirhtml = "main/html"
 
 # Index
 def index(request):
-    return render(request, "index.html")
+    return render(request, "index.html", {"title": "¡Bienvenido!"})
 
 
 # Search engine
@@ -23,7 +23,7 @@ def search(request):
         if form.is_valid():
             if not aux_check_index():
                 aux_reset_all()
-            key = form.cleaned_data['key_word']
+            key = form.cleaned_data['key_word'].lower()
             type = form.cleaned_data['type']
             ix = open_dir(dirindex)
             with ix.searcher() as searcher:
@@ -44,11 +44,19 @@ def search(request):
                     else:
                         query = And(subqueries)
                 results = searcher.search(query)
+                title = "Resultados para: "
                 mostrar = True
-                areResults = True
-                if len(results)==0:
-                    areResults=False
-                return render(request, 'search.html', {'form': form, 'mostrar':mostrar, 'results': results, 'areResults':areResults})
+                if len(results) == 0:
+                    title = "No hay resultados para: "
+                    mostrar = False
+                eci = []
+                mm = []
+                fc = []
+                for r in results:
+                    eci.append(Historico_ECI.objects.filter(producto_id=r['ean']).order_by("-fecha")[0])
+                    mm.append(Historico_MM.objects.filter(producto_id=r['ean']).order_by("-fecha")[0])
+                    fc.append(Historico_FC.objects.filter(producto_id=r['ean']).order_by("-fecha")[0])
+                return render(request, 'results.html', {"eci": eci, "mm": mm, 'fc': fc, "title": title + key, "mostrar": mostrar})
     else:
         form = Search_Form()
     return render(request, 'search.html', {'form': form})
@@ -61,6 +69,7 @@ def compare(request):
     else:
         form = Compare_Form(request.POST)
         if form.is_valid():
+            aux_check_create_html()
             if not aux_check_index():
                 aux_reset_all()
             key = form.cleaned_data['key_word']
@@ -120,6 +129,7 @@ def compare(request):
                 fn_ean.add(str(prodF["ean"]))
             l = list(eci_ean & mm_ean & fn_ean)
             mostrar = False
+            title = "No hay resultados comunes para: "
             prod_eci = []
             prod_mm = []
             prod_fc = []
@@ -127,6 +137,7 @@ def compare(request):
                 ix = open_dir(dirindex)
                 writer = ix.writer()
                 mostrar = True
+                title = "Resultados para: "
                 for e in l:
                     eci = Historico_ECI.objects.filter(producto_id=e).order_by("-fecha")[0]
                     mm = Historico_MM.objects.filter(producto_id=e).order_by("-fecha")[0]
@@ -141,7 +152,7 @@ def compare(request):
                     prod_mm.append(mm)
                     prod_fc.append(fc)
                 writer.commit()
-            return render(request, 'compare_result.html', {"eci": prod_eci, "mm": prod_mm, 'fc': prod_fc, "productName": key, "mostrar": mostrar})
+            return render(request, 'results.html', {"eci": prod_eci, "mm": prod_mm, 'fc': prod_fc, "title": title + key, "mostrar": mostrar})
 
 
 def historial_price(request):
@@ -165,8 +176,28 @@ def historial_price(request):
 
 def reset_all(request):
     aux_reset_all()
-    return render(request, "index.html")
+    return render(request, 'message.html', {"message": "Base de datos reseteada"})
 
+
+def list_all(request):
+    eci = []
+    mm = []
+    fc = []
+    ean_eci = set()
+    ean_mm = set()
+    ean_fc = set()
+    for p in Producto_ECI.objects.all():
+        ean_eci.add(p.ean)
+    for p in Producto_MM.objects.all():
+        ean_mm.add(p.ean)
+    for p in Producto_FC.objects.all():
+        ean_fc.add(p.ean)
+    ean = list(ean_eci & ean_mm & ean_fc)
+    for e in ean:
+        eci.append(Historico_ECI.objects.filter(producto_id=e).order_by("-fecha")[0])
+        mm.append(Historico_MM.objects.filter(producto_id=e).order_by("-fecha")[0])
+        fc.append(Historico_FC.objects.filter(producto_id=e).order_by("-fecha")[0])
+    return render(request, 'results.html', {"eci": eci, "mm": mm, 'fc': fc, "title": "Estos son todos los resultados", "mostrar": True})
 
 # Métodos auxiliares
 
@@ -198,6 +229,11 @@ def aux_check_index():
     if len(os.listdir(dirindex)) == 0:
         check = False
     return check
+
+
+def aux_check_create_html():
+    if not os.path.exists(dirhtml):
+        os.mkdir(dirhtml)
 
 
 def add_doc(writer, ean, descripcionMM, descripcionECI, descripcionFC):
