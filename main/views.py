@@ -76,9 +76,10 @@ def compare(request):
             if not aux_check_index():
                 aux_reset_all()
             key = form.cleaned_data['key_word']
-            eci = extract_data_elCorteIngles(key)
-            mm = extract_data_mediaMarkt(key)
-            fn = extract_data_fnac(key)
+            iterable = form.cleaned_data['iterable']
+            eci = extract_data_elCorteIngles(key, iterable)
+            mm = extract_data_mediaMarkt(key, iterable)
+            fn = extract_data_fnac(key, iterable)
             eci_ean = set()
             mm_ean = set()
             fn_ean = set()
