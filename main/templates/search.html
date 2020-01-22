@@ -1,30 +1,7 @@
 {% include 'header.html' %}
 {% block content %}
-
-<style>
-* {
-  box-sizing: border-box;
-}
-
-/* Create three equal columns that floats next to each other */
-.column {
-  float: left;
-  width: 33.33%;
-  padding: 10px;
-}
-
-/* Clear floats after the columns */
-.row:after {
-  content: "";
-  display: table;
-  clear: both;
-}
-
-p {
-  text-align: justify;
-  text-justify: inter-word;
-}
-
+{% load fontawesome %}
+{% fontawesome_stylesheet %}
 </style>
 
 <body>
@@ -44,41 +21,72 @@ p {
 </div>
 {% if mostrar %}
 
-  {% if areResults  %}
-    
-    {% for res in results %}
-
-<div class="card border-primary mb-3" style="float: left; margin-left: 50px; margin-right: 50px;">
-  <div class="card-header">{{res.ean}}</div>
-  <div class="card-body">
-    <h4 class="card-title"></h4>
-    <div class="card-text"> 
-    
-<div class="row">
-  <div class="column" style="background-color:#aaa;">
-    <h2  style="color:green">El Corte Ingles</h2>
-    <p>{{res.descripcionECI}}</p>
+  <h1 style="text-align: center; text-justify: inter-word; margin-top: 20px;">{{title}}</h1>
+<div style="display: table; clear: both;">
+  <div class="card border-danger mb-3 column" style="float: left;width:31%;padding: 10px; margin: 12px;">
+      <div class="card-header"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Media_Markt_logo.svg/800px-Media_Markt_logo.svg.png" width="30%" height="30%"></div>
+      <div class="card-body">
+          {% for m in mm %}
+          <h4 class="card-title"> <a href="{{m.producto.link}}">{{m.producto.nombre}}</a></h4>
+          <form action="/historical/" method="get">
+              <input id="web" name="web" type="hidden" value="mm">
+              <input id="name" name="name" type="hidden" value="{{m.producto.nombre}}">
+              <input id="ean" name="ean" type="hidden" value={{m.producto.ean}}>
+          <h5 class="card-title"><button  class="btn btn-secondary"> 
+              {% fontawesome_icon 'table' color='red' %} Historial de precio </button></h5>
+          </form>
+          <img src="{{m.producto.image}}"  width="30%" height="30%" style="float: right;"> 
+          <p class="card-text"><h6>Descripción:</h6> {{m.producto.descripcion}}</p>
+          <p class="card-text"><h6>Precio:</h6> <div  style="font-size:20px"> {{m.precio}}€ </div></p>
+          <hr>
+          {% endfor %}
+      </div>
   </div>
-  <div class="column" style="background-color:#bbb;">
-    <h2 style="color:red">Media Markt</h2>
-    <p>{{res.descripcionMM}}</p>
+  <div class="card border-success mb-3 column"  style="float: left;width:31%;padding: 10px; margin: 12px;">
+      <div class="card-header"><img src="https://www.elcorteingles.es/recursos/informacioncorporativa/doc/portal/2017/07/06/eci-triangulo-logo.png"  width="20%" height="20%"></div>
+      <div class="card-body">
+          {% for e in eci %}
+          <h4 class="card-title"> <a href="{{e.producto.link}}">{{e.producto.nombre}}</a></h4>
+          <form action="/historical/" method="get">
+              <input id="web" name="web" type="hidden" value="eci">
+              <input id="name" name="name" type="hidden" value="{{e.producto.nombre}}">
+              <input id="ean" name="ean" type="hidden" value={{e.producto.ean}}>
+          <h5 class="card-title"><button  class="btn btn-secondary"> 
+              {% fontawesome_icon 'table' color='green' %} Historial de precio </button></h5>
+          </form>
+          <img src="{{e.producto.image}}"  width="20%" height="20%" style="float: right;">
+          <p class="card-text"><h6>Descripción:</h6> {{e.producto.descripcion}}</p>
+          <p class="card-text"><h6>Precio:</h6><div style="font-size:20px"> {{e.precio}}€ </div></p>
+          <hr>
+          {% endfor %}
+      </div>
   </div>
-  <div class="column" style="background-color:#ccc;">
-    <h2 style="color: yellow;">Fnac</h2>
-    <p>{{res.descripcionFC}}</p>
+  <div class="card border-warning mb-3 column"  style="float: left;width:31%;padding: 10px; margin: 12px;">
+      <div class="card-header"><img src="https://leotec.com/wp-content/uploads/2019/02/fnac.png"  width="24%" height="24%"></div>
+          <div class="card-body">
+              {% for f in fc %}
+              <h4 class="card-title"> <a href="{{f.producto.link}}">{{f.producto.nombre}}</a></h4>
+              <form action="/historical/" method="get">
+                  <input id="web" name="web" type="hidden" value="fc">
+                  <input id="name" name="name" type="hidden" value="{{f.producto.nombre}}">
+                  <input id="ean" name="ean" type="hidden" value={{f.producto.ean}}>
+              <h5 class="card-title"><button  class="btn btn-secondary"> 
+                  {% fontawesome_icon 'table' color='#CCCC00' %} Historial de precio </button></h5>
+              </form>
+              <img src="{{f.producto.image}}"  width="20%" height="20%" style="float: right;">
+              <br>
+              <p class="card-text" style="text-align: justify; text-justify: inter-word;"><h6>Descripción:</h6> {{f.producto.descripcion}}</p>
+              <p class="card-text"><h6>Precio:</h6><div style="font-size:20px"> {{f.precio}}€ </div></p>
+              <hr>
+              {% endfor %}
+          </div>
   </div>
 </div>
-    
-    </div>
-  </div>
-</div>
-    {% endfor %}
   
   {% else %}
   
 
-  <h2 style="text-align: center; text-justify: inter-word; margin-top: 20px;">No se han encontrado coincidencias</h2>
-  {% endif %}
+  <h2 style="text-align: center; text-justify: inter-word; margin-top: 20px;">{{title}}</h2>
 
 {% endif %}
 </body>

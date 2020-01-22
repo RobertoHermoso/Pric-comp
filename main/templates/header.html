@@ -33,9 +33,20 @@
               <a class="nav-link" href="/list_all/">Lista</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/reset_all/">Reiniciar BD</a>
+              <a class="nav-link" href="/reset_all/" onClick="return confirmaEliminacion()">Reiniciar BD</a>
             </li>
           </ul>
+
+    <script type="text/javascript">
+        function confirmaEliminacion() {
+          var res = confirm("¿Está seguro de eliminar toda la base datos?");
+            if (res) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    </script>
           <form class="form-inline my-2 my-lg-0" action="/compare/" method="post">{% csrf_token %}
             <input class="form-control mr-sm-2" type="text" name="key_word" placeholder="Texto">
             <button class="btn btn-secondary my-2 my-sm-0" type="submit">Comparar</button>

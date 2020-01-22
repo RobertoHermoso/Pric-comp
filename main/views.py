@@ -56,7 +56,7 @@ def search(request):
                     eci.append(Historico_ECI.objects.filter(producto_id=r['ean']).order_by("-fecha")[0])
                     mm.append(Historico_MM.objects.filter(producto_id=r['ean']).order_by("-fecha")[0])
                     fc.append(Historico_FC.objects.filter(producto_id=r['ean']).order_by("-fecha")[0])
-                return render(request, 'results.html', {"eci": eci, "mm": mm, 'fc': fc, "title": title + key, "mostrar": mostrar})
+                return render(request, 'search.html', {"eci": eci, "mm": mm, 'fc': fc, "title": title + key, "mostrar": mostrar})
     else:
         form = Search_Form()
     return render(request, 'search.html', {'form': form})
