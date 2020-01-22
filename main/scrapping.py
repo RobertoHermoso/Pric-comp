@@ -131,46 +131,62 @@ def extract_an_element_MM(res, soup, link):
 
 #------------------------------------ Srapping FNAC ---------------------------------------
 
-def extract_data_fnac(key_word):
+def extract_data_fnac(key_word, iterable):
     res = []
     fichero = "main/html/fnac"
     ficheroElement = "main/html/fnacElement"
     key_word = urllib.parse.quote(key_word)
+    aux = True
+    currentPage = 1
     
     url = "https://www.fnac.es/SearchResult/ResultList.aspx?SCat=0%211&Search=" + key_word + "&sft=1&sa=0"
-    if open_url(url, fichero):
-        f = open(fichero, encoding="utf-8")
-        s = f.read()
-        soup = BeautifulSoup(s, "html.parser")
+    while aux:
+        print(aux)
+        if open_url(url, fichero):
+            f = open(fichero, encoding="utf-8")
+            s = f.read()
+            soup = BeautifulSoup(s, "html.parser")
+            
+            #Pages
+            if (currentPage==1):
+                pages = soup.find('li', class_="pageView").get_text().split('/')[1].strip()
+            products = soup.findAll("article", class_="Article-itemGroup js-article-thumbnail")
 
-        products = soup.findAll("article", class_="Article-itemGroup js-article-thumbnail")
-        for product in products:
-            link = product.find("a").get('href')
-            if open_url(link, ficheroElement):
-                try:
-                    f1 = open(ficheroElement, encoding='utf-8')
-                    s1 = f1.read()
-                    soup = BeautifulSoup(s1, "html.parser")
-                    #EAN
-                    ean = soup.find('div', class_="f-productHeader-additionalInformation f-productHeader-review").find('span').get('data-ean')
-                    #Title
-                    title = soup.find('h1', class_="f-productHeader-Title").get_text().strip()
-                    #Description
-                    if soup.find('div', class_="whiteContent js-productSummaryTrimHeight-target"):
-                        description = soup.find('div', class_="whiteContent js-productSummaryTrimHeight-target").get_text()
-                    else:
-                        description = 'No hay descprición'
-                    #Price
-                    prices =  soup.find('div', class_="f-priceBox").findAll("span")
-                    if len(prices)==2:
-                        price = prices[1].get_text().replace('€','')
-                    else:
-                        price = soup.find('div', class_="f-priceBox").get_text().replace("€", "")
-                    #Image
-                    image = soup.find('img', class_="f-productVisuals-mainMedia js-ProductVisuals-imagePreview").get('src')
-                    attributes = {'ean' : ean,'title':title, 'price':price, 'link': link, 'description':description, 'image':image}
-                    res.append(attributes)
-                except:
-                    continue
+            for product in products:
+                link = product.find("a").get('href')
+                if open_url(link, ficheroElement):
+                    try:
+                        f1 = open(ficheroElement, encoding='utf-8')
+                        s1 = f1.read()
+                        soup = BeautifulSoup(s1, "html.parser")
+                        #EAN
+                        ean = soup.find('div', class_="f-productHeader-additionalInformation f-productHeader-review").find('span').get('data-ean')
+                        #Title
+                        title = soup.find('h1', class_="f-productHeader-Title").get_text().strip()
+                        #Description
+                        if soup.find('div', class_="whiteContent js-productSummaryTrimHeight-target"):
+                            description = soup.find('div', class_="whiteContent js-productSummaryTrimHeight-target").get_text()
+                        else:
+                            description = 'No hay descprición'
+                        #Price
+                        prices =  soup.find('div', class_="f-priceBox").findAll("span")
+                        if len(prices)==2:
+                            price = prices[1].get_text().replace('€','')
+                        else:
+                            price = soup.find('div', class_="f-priceBox").get_text().replace("€", "")
+                        #Image
+                        image = soup.find('img', class_="f-productVisuals-mainMedia js-ProductVisuals-imagePreview").get('src')
+                        attributes = {'ean' : ean,'title':title, 'price':price, 'link': link, 'description':description, 'image':image}
+                        res.append(attributes)
+                    except:
+                        continue
+        if int(currentPage) == int(pages) || iterable:
+            break
+        else:
+            currentPage+=1
+            print(currentPage)
+            print(pages)
+            url="https://www.fnac.es/SearchResult/ResultList.aspx?PageIndex=" + str(currentPage) + "&Search="+ key_word+ "&sft=1&sl"
+            print(url)
     return res
 
